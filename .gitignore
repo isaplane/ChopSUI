@@ -1,7 +1,6 @@
 jails.json
-build.jai
 modules/*
-run_tests.jai
+build_test_runner.jai
 .build
 tests
 layout_tests
