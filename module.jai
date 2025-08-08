@@ -6,6 +6,7 @@ Rect :: struct
 
 Direction :: enum u8
 {
+    NONE;
     LEFT;
     RIGHT;
     TOP;
@@ -39,6 +40,10 @@ chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *BSP.Tree(Node) =
         case .RIGHT;  chopped, remainder = chop_right(rect, value);
         case .TOP;    chopped, remainder = chop_top(rect, value);
         case .BOTTOM; chopped, remainder = chop_bottom(rect, value);
+
+        case .NONE;
+            log_error("Bad chop direction, .NONE\n");
+            return .{}, rect;
     }
 
     if bsp
@@ -48,7 +53,7 @@ chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *BSP.Tree(Node) =
         data.expression = root;
         data.direction = direction;
 
-        BSP.bisect_node(bsp, node, .{rect = chopped}, .{rect = chopped});
+        BSP.bisect_node(bsp, node, .{rect = chopped}, .{rect = remainder});
     }
 
     return chopped, remainder;

@@ -2,5 +2,4 @@ jails.json
 modules/*
 build_test_runner.jai
 .build
-tests
 layout_tests
