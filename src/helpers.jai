@@ -18,6 +18,11 @@ compare_rect :: (rect_a: Rect, rect_b: Rect) -> bool
     return (rect_a.x == rect_b.x) && (rect_a.y == rect_b.y) && (rect_a.w == rect_b.w) && (rect_a.h == rect_b.h);
 }
 
+node_matches_rect :: (rect: Rect, data: Node_Data) -> bool
+{
+    return compare_rect(rect, data.rect);
+}
+
 node_contains_point :: (using data: Node_Data, x: int, y: int) -> bool
 {
     return (x >= rect.x) && (x < rect.x + rect.w) && (y >= rect.y) && (y < rect.y + rect.h);
