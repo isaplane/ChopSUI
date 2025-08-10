@@ -1,4 +1,80 @@
-generate_rect_struct_decl :: (rect: Rect, struct_name: string, bsp: *Tree) -> string
+// find_rects_in_expression :: (expression: Code) -> [] *Code_Declaration
+// {
+//
+// }
+
+write_node_rect_strings :: (amount: Code, node: *Node, left: *Node, right: *Node)
+{
+    root_expr, expressions := compiler_get_nodes(amount);
+
+    rect_lit_str := sprint("Chop.Rect.{%, %, %, %}",
+                            node.data.x_str,
+                            node.data.y_str,
+                            node.data.w_str,
+                            node.data.h_str
+    );
+
+    builder: String_Builder;
+    print_expression(*builder, root_expr); 
+    expr_string := builder_to_string(*builder);
+
+    if node.data.direction ==
+    {
+        case .LEFT;
+            left.data.w_str = expr_string;
+
+            left.data.x_str = node.data.x_str;
+            left.data.y_str = node.data.y_str;
+            left.data.h_str = node.data.h_str;
+
+            right.data.w_str = sprint("% - (%)", node.data.w_str, expr_string);
+            right.data.x_str = sprint("% + %", node.data.x_str, expr_string);
+
+            right.data.y_str = node.data.y_str;
+            right.data.h_str = node.data.h_str;
+
+        case .RIGHT;
+            left.data.w_str = expr_string;
+            left.data.x_str = sprint("Chop.get_xmax(%) + 1 - %", rect_lit_str, expr_string);
+
+            left.data.y_str = node.data.y_str;
+            left.data.h_str = node.data.h_str;
+
+            right.data.w_str = sprint("% - (%)", node.data.w_str, expr_string);
+
+            right.data.x_str = node.data.x_str;
+            right.data.y_str = node.data.y_str;
+            right.data.h_str = node.data.h_str;
+
+        case .TOP;
+            left.data.h_str = expr_string;
+
+            left.data.x_str = node.data.x_str;
+            left.data.y_str = node.data.y_str;
+            left.data.w_str = node.data.w_str;
+
+            right.data.h_str = sprint("% - (%)", node.data.h_str, expr_string);
+            right.data.y_str = sprint("% + %", node.data.y_str, expr_string);
+
+            right.data.x_str = node.data.x_str;
+            right.data.w_str = node.data.w_str;
+
+        case .BOTTOM;
+            left.data.h_str = expr_string;
+            left.data.y_str = sprint("Chop.get_ymax(%) + 1 - %", rect_lit_str, expr_string);
+
+            left.data.x_str = node.data.x_str;
+            left.data.w_str = node.data.w_str;
+
+            right.data.h_str = sprint("% - (%)", node.data.h_str, expr_string);
+
+            right.data.x_str = node.data.x_str;
+            right.data.y_str = node.data.y_str;
+            right.data.w_str = node.data.w_str;
+    }
+}
+
+bake_rect_struct_decl :: (rect: Rect, struct_name: string, bsp: *Tree) -> string
 {
     // get path to node from tree (based on exact shape match, need to modify BSP)
     xc, yc := get_center(rect);

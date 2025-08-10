@@ -47,7 +47,7 @@ generate_rect_struct_decl_test :: ()
     };
 
     bsp := BSP.get_new_tree(root_data);
-    struct_str := Chop.generate_rect_struct_decl(bsp.root.data.rect, "Test_UI_Rect", bsp);
+    struct_str := Chop.bake_rect_struct_decl(bsp.root.data.rect, "Test_UI_Rect", bsp);
 
     Verifai.are_equal(EXPECTED_STRUCT_STR, struct_str);
 } @Test

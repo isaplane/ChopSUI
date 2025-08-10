@@ -29,7 +29,12 @@ bsp_root_test :: ()
 {
     setup := context.setup_data.(*BSP_Root_Only_Test_Setup_Data);
     using setup;
+
     Verifai.are_equal(root_rect, bsp.root.data.rect, Chop.compare_rect);
+    Verifai.are_equal(bsp.root.data.x_str, "root_rect.x");
+    Verifai.are_equal(bsp.root.data.y_str, "root_rect.y");
+    Verifai.are_equal(bsp.root.data.w_str, "root_rect.w");
+    Verifai.are_equal(bsp.root.data.h_str, "root_rect.h");
 } @Test
 
 // ------------------------------------------------------------------------------------------------------------

@@ -1,31 +1,8 @@
 chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *BSP.Tree(Node) = null) -> chopped: Rect, remainder: Rect #expand
 {
-    root, expressions := compiler_get_nodes(amount);
     value := #insert amount;
 
-    chopped, remainder: Rect;
-    if direction ==
-    {
-        case .LEFT;   chopped, remainder = chop_left(rect, value);
-        case .RIGHT;  chopped, remainder = chop_right(rect, value);
-        case .TOP;    chopped, remainder = chop_top(rect, value);
-        case .BOTTOM; chopped, remainder = chop_bottom(rect, value);
-
-        case .NONE;
-            log_error("Bad chop direction, .NONE\n");
-            return .{}, rect;
-    }
-
-    if bsp
-    {
-        x_center, y_center := get_center(rect);
-        using node := BSP.find_leaf_containing_point(bsp, x_center, y_center, node_contains_point);
-        // data.expression = root;
-        data.direction = direction;
-
-        BSP.bisect_node(bsp, node, .{rect = chopped}, .{rect = remainder});
-    }
-
+    chopped, remainder := chop_internal(rect, amount, value, direction, bsp);
     return chopped, remainder;
 }
 
@@ -115,5 +92,39 @@ chop_bottom :: (rect: Rect, amount: int) -> bottom: Rect, remainder: Rect
 }
 
 #scope_file
+
+chop_internal :: (rect: Rect, amount: Code, amount_value: int, direction: Direction, bsp: *BSP.Tree(Node) = null) -> chopped: Rect, remainder: Rect
+{
+    ok := true;
+    chopped, remainder: Rect;
+
+    if direction ==
+    {
+        case .LEFT;   chopped, remainder = chop_left  (rect, amount_value);
+        case .RIGHT;  chopped, remainder = chop_right (rect, amount_value);
+        case .TOP;    chopped, remainder = chop_top   (rect, amount_value);
+        case .BOTTOM; chopped, remainder = chop_bottom(rect, amount_value);
+
+        case .NONE;
+            log_error("Bad chop direction (.NONE).\n"); 
+            ok = false;
+    }
+
+    if ok && bsp
+    {
+        x_center, y_center := get_center(rect);
+        node := BSP.find_leaf_containing_point(bsp, x_center, y_center, node_contains_point);
+        node.data.direction = direction;
+
+        left, right: *Node;
+        ok, left, right = BSP.bisect_node(bsp, node, .{rect = chopped}, .{rect = remainder});
+
+        if !ok log_error("Bad bisect. Cancelled chop.\n");
+        else write_node_rect_strings(amount, node, left, right);
+    }
+
+    if ok return chopped, remainder;
+    return .{}, rect;
+}
 
 BSP :: #import "BSP";

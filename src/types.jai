@@ -6,8 +6,10 @@ Rect :: struct
 
 Sym_Rect :: struct
 {
-    x_str, y_str: string;
-    w_str, h_str: string;
+    x_str := "root_rect.x";
+    y_str := "root_rect.y";
+    w_str := "root_rect.w";
+    h_str := "root_rect.h";
 }
 
 Direction :: enum u8
