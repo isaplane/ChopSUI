@@ -52,6 +52,19 @@ generate_rect_struct_decl_test :: ()
     Verifai.are_equal(EXPECTED_STRUCT_STR, struct_str);
 } @Test
 
+// ------------------------------------------------------------------------------------------------------------
+
+detect_rect_in_expression_test :: ()
+{
+    very_cool_rect: Chop.Rect = .{10, 10, 100, 100};
+
+    // Chop.chop(very_cool_rect, 20, .LEFT);
+    Chop.chop(very_cool_rect, very_cool_rect.w - 10, .LEFT);
+} @Test
+
+
+// ------------------------------------------------------------------------------------------------------------
+
 #scope_file
 Chop    :: #import "ChopSUI";
 BSP     :: #import "BSP";

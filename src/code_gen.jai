@@ -1,7 +1,20 @@
-// find_rects_in_expression :: (expression: Code) -> [] *Code_Declaration
-// {
-//
-// }
+find_rects_in_expression :: (expression: Code) -> [] *Code_Declaration
+{
+    rect_decls: [..] *Code_Declaration;
+    root, expressions := compiler_get_nodes(expression);
+
+    for expressions
+    {
+        if it.kind != .IDENT continue;
+
+        decl := (cast(*Code_Ident) it).resolved_declaration;
+        if !decl continue;
+
+        if get_type(decl.type) == Rect array_add_if_unique(*rect_decls, decl);
+    }
+
+    return rect_decls;
+}
 
 write_node_rect_strings :: (amount: Code, node: *Node, left: *Node, right: *Node)
 {

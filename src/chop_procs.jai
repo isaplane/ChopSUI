@@ -2,6 +2,13 @@ chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *BSP.Tree(Node) =
 {
     value := #insert amount;
 
+    rect_decls := find_rects_in_expression(amount);
+    if rect_decls.count > 0 
+    {
+        print("Found rect decl! %\n", rect_decls[0].expression.*);
+        // #insert #run tprint("print(\"Rect decl value: \%\\n \", `%);", rect_decls[0].name);
+    }
+
     chopped, remainder := chop_internal(rect, amount, value, direction, bsp);
     return chopped, remainder;
 }

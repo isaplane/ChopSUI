@@ -3,4 +3,9 @@ modules/*
 build_test_runner.jai
 .build
 bin
-layout_tests
+layout_tests/*
+!layout_tests/inject_lvalues_test/
+!layout_tests/inject_lvalues_test/**
+layout_tests/inject_lvalues_test/bin
+layout_tests/inject_lvalues_test/.build
+layout_tests/inject_lvalues_test/modules/.build
