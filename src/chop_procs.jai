@@ -1,15 +1,8 @@
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *BSP.Tree(Node) = null) -> chopped: Rect, remainder: Rect #expand
+chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null) -> chopped: Rect, remainder: Rect #expand
 {
     value := #insert amount;
 
-    rect_decls := find_rects_in_expression(amount);
-    if rect_decls.count > 0 
-    {
-        print("Found rect decl! %\n", rect_decls[0].expression.*);
-        // #insert #run tprint("print(\"Rect decl value: \%\\n \", `%);", rect_decls[0].name);
-    }
-
-    chopped, remainder := chop_internal(rect, amount, value, direction, bsp);
+    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp);
     return chopped, remainder;
 }
 
@@ -100,7 +93,15 @@ chop_bottom :: (rect: Rect, amount: int) -> bottom: Rect, remainder: Rect
 
 #scope_file
 
-chop_internal :: (rect: Rect, amount: Code, amount_value: int, direction: Direction, bsp: *BSP.Tree(Node) = null) -> chopped: Rect, remainder: Rect
+chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null, idents: ..string) -> chopped: Rect, remainder: Rect #expand
+{
+    value := #insert amount;
+
+    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp, idents = idents);
+    return chopped, remainder;
+}
+
+chop_helper :: (rect: Rect, amount: Code, amount_value: int, direction: Direction, bsp: *Tree = null, idents := string.["", ""]) -> chopped: Rect, remainder: Rect
 {
     ok := true;
     chopped, remainder: Rect;
@@ -123,8 +124,11 @@ chop_internal :: (rect: Rect, amount: Code, amount_value: int, direction: Direct
         node := BSP.find_leaf_containing_point(bsp, x_center, y_center, node_contains_point);
         node.data.direction = direction;
 
+        left_data:  Node_Data = .{ident = idents[0], rect = chopped};
+        right_data: Node_Data = .{ident = idents[1], rect = remainder};
+
         left, right: *Node;
-        ok, left, right = BSP.bisect_node(bsp, node, .{rect = chopped}, .{rect = remainder});
+        ok, left, right = BSP.bisect_node(bsp, node, left_data, right_data);
 
         if !ok log_error("Bad bisect. Cancelled chop.\n");
         else write_node_rect_strings(amount, node, left, right);

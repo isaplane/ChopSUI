@@ -1,4 +1,4 @@
-find_rects_in_expression :: (expression: Code) -> [] *Code_Declaration
+find_rects_in_expression :: (expression: Code) -> [..] *Code_Declaration
 {
     rect_decls: [..] *Code_Declaration;
     root, expressions := compiler_get_nodes(expression);
@@ -89,7 +89,7 @@ write_node_rect_strings :: (amount: Code, node: *Node, left: *Node, right: *Node
 
 bake_rect_struct_decl :: (rect: Rect, struct_name: string, bsp: *Tree) -> string
 {
-    // get path to node from tree (based on exact shape match, need to modify BSP)
+    // get path to node from tree (based on exact shape match)
     xc, yc := get_center(rect);
     path: [..] *Node;
     node := BSP.find_leaf_containing_point(bsp, xc, yc, node_contains_point, *path);

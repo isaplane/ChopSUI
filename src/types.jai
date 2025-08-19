@@ -31,8 +31,9 @@ Tree :: BSP.Tree(Node);
 
 Node_Data :: struct
 {
-    rect:       Rect;
-    direction:  Direction;
+    ident:     string;
+    rect:      Rect;
+    direction: Direction;
 
     using sym_rect: Sym_Rect;
 }
