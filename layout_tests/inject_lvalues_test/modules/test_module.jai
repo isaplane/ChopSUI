@@ -86,6 +86,7 @@ message_loop :: (w: Workspace)
 
                         new_args: [..] Code_Argument;
                         array_add(*new_args, .. call.arguments_unsorted);
+                        print("New args: %\n", new_args);
                         args := stmt.comma_separated_assignment.arguments; // This holds the lhs of the proc call!
                         for args 
                         {

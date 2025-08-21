@@ -6,6 +6,14 @@ chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null) -> 
     return chopped, remainder;
 }
 
+chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null, idents: [2] string) -> chopped: Rect, remainder: Rect #expand
+{
+    value := #insert amount;
+
+    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp, idents = idents);
+    return chopped, remainder;
+}
+
 chop_rect :: (rect: Rect, margins: Margins) -> inner: Rect, outer: [4] Rect
 {
     inner := rect;
@@ -92,14 +100,6 @@ chop_bottom :: (rect: Rect, amount: int) -> bottom: Rect, remainder: Rect
 }
 
 #scope_file
-
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null, idents: ..string) -> chopped: Rect, remainder: Rect #expand
-{
-    value := #insert amount;
-
-    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp, idents = idents);
-    return chopped, remainder;
-}
 
 chop_helper :: (rect: Rect, amount: Code, amount_value: int, direction: Direction, bsp: *Tree = null, idents := string.["", ""]) -> chopped: Rect, remainder: Rect
 {
