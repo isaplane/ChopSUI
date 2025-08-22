@@ -1,4 +1,12 @@
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null) -> chopped: Rect, remainder: Rect #expand
+chop :: (rect: Rect, $amount: Code, direction: Direction) -> chopped: Rect, remainder: Rect #expand
+{
+    value := #insert amount;
+
+    chopped, remainder := chop_helper(rect, amount, value, direction);
+    return chopped, remainder;
+}
+
+chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree) -> chopped: Rect, remainder: Rect #expand
 {
     value := #insert amount;
 
@@ -6,7 +14,7 @@ chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null) -> 
     return chopped, remainder;
 }
 
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree = null, idents: [2] string) -> chopped: Rect, remainder: Rect #expand
+chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree, idents: [2] string) -> chopped: Rect, remainder: Rect #expand
 {
     value := #insert amount;
 

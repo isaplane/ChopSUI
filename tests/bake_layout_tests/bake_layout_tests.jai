@@ -5,10 +5,28 @@ get_proc_location_test :: ()
     Verifai.are_equal(location.fully_pathed_filename, "/home/egret/projects/jai/module_dev/ChopSUI/tests/bake_layout_tests/layout.jai");
 } @Test
 
-get_build_location_from_bake_test :: ()
+simple_decl_test :: ()
 {
-    build_filename := Chop.bake_layout(Test_Layout_1_Data.{}, test_layout_1);
-    Verifai.are_equal(".build/bake_layout.jai", build_filename);
+    build_filename := Chop.bake_layout(test_layout_simple_decl);
+    Verifai.are_equal(".build/bake_test_layout_simple_decl.jai", build_filename);
+} @Test
+
+compound_decl_test :: ()
+{
+    build_filename := Chop.bake_layout(test_layout_compound_decl);
+    Verifai.are_equal(".build/bake_test_layout_compound_decl.jai", build_filename);
+} @Test
+
+assignment_test :: ()
+{
+    build_filename := Chop.bake_layout(test_layout_assignments);
+    Verifai.are_equal(".build/bake_test_layout_assignments.jai", build_filename);
+} @Test
+
+calls_test :: ()
+{
+    build_filename := Chop.bake_layout(test_layout_calls);
+    Verifai.are_equal(".build/bake_test_layout_calls.jai", build_filename);
 } @Test
 
 #scope_file
@@ -16,3 +34,4 @@ get_build_location_from_bake_test :: ()
 
 Verifai :: #import "Verifai"; 
 Chop    :: #import "ChopSUI";
+BSP     :: #import "BSP";

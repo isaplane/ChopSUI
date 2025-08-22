@@ -6,10 +6,10 @@ Rect :: struct
 
 Sym_Rect :: struct
 {
-    x_str := "root_rect.x";
-    y_str := "root_rect.y";
-    w_str := "root_rect.w";
-    h_str := "root_rect.h";
+    x_str := "root.x";
+    y_str := "root.y";
+    w_str := "root.w";
+    h_str := "root.h";
 }
 
 Direction :: enum u8
@@ -40,8 +40,8 @@ Node_Data :: struct
 
 UI_Data :: struct
 {
-    root_rect: Rect;
-    bsp:       *Tree;
+    root: Rect;
+    bsp:  *Tree;
 }
 
 #scope_file

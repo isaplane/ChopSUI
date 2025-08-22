@@ -1,7 +1,7 @@
 BSP_Root_Only_Test_Setup_Data :: struct
 {
     bsp:      *Chop.Tree;
-    root_rect: Chop.Rect;
+    root:    Chop.Rect;
     builder: String_Builder;
 }
 
@@ -11,7 +11,7 @@ setup_bsp_root_only_tests :: ()
     rect := Chop.Rect.{0, 0, 100, 100};
     setup.* = .{
         bsp = BSP.get_new_tree(Chop.Node_Data.{rect = rect}),
-        root_rect = rect
+        root = rect
     };
 
     context.setup_data = setup;
@@ -30,11 +30,11 @@ bsp_root_test :: ()
     setup := context.setup_data.(*BSP_Root_Only_Test_Setup_Data);
     using setup;
 
-    Verifai.are_equal(root_rect, bsp.root.data.rect, Chop.compare_rect);
-    Verifai.are_equal(bsp.root.data.x_str, "root_rect.x");
-    Verifai.are_equal(bsp.root.data.y_str, "root_rect.y");
-    Verifai.are_equal(bsp.root.data.w_str, "root_rect.w");
-    Verifai.are_equal(bsp.root.data.h_str, "root_rect.h");
+    Verifai.are_equal(root, bsp.root.data.rect, Chop.compare_rect);
+    Verifai.are_equal(bsp.root.data.x_str, "root.x");
+    Verifai.are_equal(bsp.root.data.y_str, "root.y");
+    Verifai.are_equal(bsp.root.data.w_str, "root.w");
+    Verifai.are_equal(bsp.root.data.h_str, "root.h");
 } @Test
 
 // ------------------------------------------------------------------------------------------------------------
@@ -57,12 +57,12 @@ bsp_find_root_test :: (c: BSP_Find_Root_Test_Case)
 {
     setup := context.setup_data.(*BSP_Root_Only_Test_Setup_Data);
     using setup;
-    root := BSP.find_leaf_containing_point(bsp, c.x, c.y, Chop.node_contains_point);
+    bsp_root := BSP.find_leaf_containing_point(bsp, c.x, c.y, Chop.node_contains_point);
 
     if c.expect_null_root 
-        Verifai.is_null(root);
+        Verifai.is_null(bsp_root);
     else 
-        Verifai.are_equal(root_rect, root.data.rect, Chop.compare_rect);
+        Verifai.are_equal(root, bsp_root.data.rect, Chop.compare_rect);
 } @Test
 
 

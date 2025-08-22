@@ -28,9 +28,10 @@ node_contains_point :: (using data: Node_Data, x: int, y: int) -> bool
     return (x >= rect.x) && (x < rect.x + rect.w) && (y >= rect.y) && (y < rect.y + rect.h);
 }
 
-init_bsp :: (root_rect: Rect) -> *Tree
+init_bsp :: (root: Rect) -> *Tree
 {
-    BSP.get_new_tree(.{ident = "root_rect", rect = root_rect});
+    data: Node_Data = .{ident = "root", rect = root};
+    return BSP.get_new_tree(data);
 }
 
 #scope_file

@@ -87,15 +87,14 @@ write_node_rect_strings :: (amount: Code, node: *Node, left: *Node, right: *Node
     }
 }
 
-bake_layout :: (data: $T, $layout_proc: Code) -> path: string
+bake_layout :: ($layout_proc: Code) -> path: string
 {
     proc_node := compiler_get_nodes(layout_proc);
     proc_ident := cast(*Code_Ident) proc_node;
     print("Proc: %\n", proc_ident.name);
 
     proc_location := make_location(proc_ident.resolved_declaration);
-    proc_filename := File_Helpers.get_basename_from_location(proc_location);
-    w_name := tprint("% bake", proc_filename);
+    w_name := tprint("% bake", proc_ident.name);
 
     w := compiler_create_workspace(w_name);
 
@@ -128,19 +127,15 @@ bake_layout :: (data: $T, $layout_proc: Code) -> path: string
                 if ASTist.proc_has_been_modified(layout_proc_body) continue;
                 print("Found layout proc: %\n", layout_proc_body.header.name);
                 results := ASTist.find_procedure_calls_by_name(layout_proc_body, "chop");
-                print("Found % chop calls in %\n", results.compound_declarations.count, layout_proc_body.header.name);
-                for decl: results.compound_declarations
-                {
-                    call := decl.declaration_properties.expression.(*Code_Procedure_Call);
+                print("Found % simple chop calls in %\n", results.simple_declarations.count, layout_proc_body.header.name);
+                print("Found % compound chop calls in %\n", results.compound_declarations.count, layout_proc_body.header.name);
+                print("Found % assignment chop calls in %\n", results.assignments.count, layout_proc_body.header.name);
+                print("Found % chop calls without any lvalues in %\n", results.calls.count, layout_proc_body.header.name);
 
-                    idents := ASTist.get_lvalues_from_compound_declaration(decl);
-                    names := Array_Helpers.map(idents, x => x.name);
-                    if names.count == 1 array_add(*names, "_");
-                    print("Found names: %\n", names);
-                    new_call := ASTist.insert_string_array_literal_as_argument(call, ..names);
-
-                    call.* = new_call;
-                }
+                handle_simple_chop_decls  (results.simple_declarations);
+                handle_compound_chop_decls(results.compound_declarations);
+                handle_assignment_chop_calls(results.assignments);
+                // Note that I can ignore plain chop calls without lvalues, because the default ident values will be empty strings anyways.
 
                 compiler_modify_procedure(w, layout_proc_body);
             }
@@ -151,7 +146,7 @@ bake_layout :: (data: $T, $layout_proc: Code) -> path: string
 
     compiler_end_intercept(w);
 
-    return tprint(".build/bake_%", proc_filename);
+    return tprint(".build/bake_%.jai", proc_ident.name);
 }
 
 bake_rect_struct_decl :: (rect: Rect, struct_name: string, bsp: *Tree) -> string
@@ -185,6 +180,48 @@ init_baked_rect :: (ui_data: $U/UI_Data, rect: $R) -> R #expand
 }
 
 #scope_file
+
+handle_simple_chop_decls :: (decls: [] *Code_Declaration)
+{
+    for decl: decls
+    {
+        call := decl.expression.(*Code_Procedure_Call);
+        name := ASTist.get_lvalue_from_simple_declaration(decl).name;
+        print("Found name: %\n", name);
+
+        new_call := ASTist.insert_string_array_literal_as_argument(call, ..string.[name, ""]);
+        call.* = new_call;
+    }
+}
+
+handle_compound_chop_decls :: (decls: [] *Code_Compound_Declaration)
+{
+    for decl: decls
+    {
+        call := decl.declaration_properties.expression.(*Code_Procedure_Call);
+        idents := ASTist.get_lvalues_from_compound_declaration(decl);
+        names := Array_Helpers.map(idents, x => x.name);
+        print("Found names: %\n", names);
+
+        new_call := ASTist.insert_string_array_literal_as_argument(call, ..names);
+        call.* = new_call;
+    }
+}
+
+handle_assignment_chop_calls :: (assignments: [] *Code_Binary_Operator)
+{
+    for assignment: assignments
+    {
+        call := assignment.right.(*Code_Procedure_Call);
+        idents := ASTist.get_lvalues_from_assignment(assignment);
+        names := Array_Helpers.map(idents, x => x.name);
+        print("Found names: %\n", names);
+        if names.count == 1 array_add(*names, "");
+
+        new_call := ASTist.insert_string_array_literal_as_argument(call, ..names);
+        call.* = new_call;
+    }
+}
 
 struct_decl_template :: #string HERE
 % :: ()
