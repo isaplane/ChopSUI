@@ -6,3 +6,5 @@
 #import "Basic";
 #import "Compiler";
 #import "Program_Print";
+
+#module_parameters(IS_BAKING := false);

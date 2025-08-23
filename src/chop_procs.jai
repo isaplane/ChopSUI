@@ -6,19 +6,11 @@ chop :: (rect: Rect, $amount: Code, direction: Direction) -> chopped: Rect, rema
     return chopped, remainder;
 }
 
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree) -> chopped: Rect, remainder: Rect #expand
+chop :: (rect: Rect, $amount: Code, direction: Direction, idents: [2] string) -> chopped: Rect, remainder: Rect #expand
 {
     value := #insert amount;
 
-    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp);
-    return chopped, remainder;
-}
-
-chop :: (rect: Rect, $amount: Code, direction: Direction, bsp: *Tree, idents: [2] string) -> chopped: Rect, remainder: Rect #expand
-{
-    value := #insert amount;
-
-    chopped, remainder := chop_helper(rect, amount, value, direction, bsp = bsp, idents = idents);
+    chopped, remainder := chop_helper(rect, amount, value, direction, idents = idents);
     return chopped, remainder;
 }
 
@@ -109,9 +101,8 @@ chop_bottom :: (rect: Rect, amount: int) -> bottom: Rect, remainder: Rect
 
 #scope_file
 
-chop_helper :: (rect: Rect, amount: Code, amount_value: int, direction: Direction, bsp: *Tree = null, idents := string.["", ""]) -> chopped: Rect, remainder: Rect
+chop_helper :: (rect: Rect, amount: Code, amount_value: int, direction: Direction,  idents := string.["", ""]) -> chopped: Rect, remainder: Rect
 {
-    ok := true;
     chopped, remainder: Rect;
 
     if direction ==
@@ -123,27 +114,38 @@ chop_helper :: (rect: Rect, amount: Code, amount_value: int, direction: Directio
 
         case .NONE;
             log_error("Bad chop direction (.NONE).\n"); 
-            ok = false;
+            return .{}, rect;
     }
 
-    if ok && bsp
+    ok := true;
+    #if IS_BAKING ok = update_bsp(rect, chopped, remainder, amount, direction, idents);
+
+    if !ok return .{}, rect;
+    return chopped, remainder;
+}
+
+update_bsp :: (rect: Rect, chopped: Rect, remainder: Rect, amount: Code, direction: Direction, idents: [2] string) -> bool #compile_time
+{
+    bsp := context.bsp;
+    if !bsp 
     {
-        x_center, y_center := get_center(rect);
-        node := BSP.find_leaf_containing_point(bsp, x_center, y_center, node_contains_point);
-        node.data.direction = direction;
-
-        left_data:  Node_Data = .{ident = idents[0], rect = chopped};
-        right_data: Node_Data = .{ident = idents[1], rect = remainder};
-
-        left, right: *Node;
-        ok, left, right = BSP.bisect_node(bsp, node, left_data, right_data);
-
-        if !ok log_error("Bad bisect. Cancelled chop.\n");
-        else write_node_rect_strings(amount, node, left, right);
+        log_error("Bad bisect. Cancelled chop.\n"); 
+        return false;
     }
 
-    if ok return chopped, remainder;
-    return .{}, rect;
+    x_center, y_center := get_center(rect);
+    node := BSP.find_leaf_containing_point(bsp, x_center, y_center, node_contains_point);
+    node.data.direction = direction;
+
+    left_data:  Node_Data = .{ident = idents[0], rect = chopped};
+    right_data: Node_Data = .{ident = idents[1], rect = remainder};
+
+    ok, left, right := BSP.bisect_node(bsp, node, left_data, right_data);
+
+    if !ok log_error("Bad bisect. Cancelled chop.\n");
+    else write_node_rect_strings(amount, node, left, right);
+
+    return ok;
 }
 
 BSP :: #import "BSP";

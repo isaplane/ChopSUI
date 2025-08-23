@@ -91,7 +91,12 @@ bake_layout :: ($layout_proc: Code) -> path: string
 {
     proc_node := compiler_get_nodes(layout_proc);
     proc_ident := cast(*Code_Ident) proc_node;
+    proc_header := proc_ident.resolved_declaration.expression.(*Code_Procedure_Header);
+
+    assert(proc_header.arguments.count == 1);
+    proc_data_type := proc_header.arguments[0].type_inst.result;
     print("Proc: %\n", proc_ident.name);
+    print("Proc data type: %\n", get_type(proc_data_type));
 
     proc_location := make_location(proc_ident.resolved_declaration);
     w_name := tprint("% bake", proc_ident.name);
@@ -107,6 +112,7 @@ bake_layout :: ($layout_proc: Code) -> path: string
     compiler_begin_intercept(w);
 
     add_build_file(proc_location.fully_pathed_filename, w);
+    add_build_string(tprint(bake_layout_build_str, get_type(proc_data_type), proc_ident.name), w);
 
     builder: String_Builder;
     while true
@@ -222,6 +228,17 @@ handle_assignment_chop_calls :: (assignments: [] *Code_Binary_Operator)
         call.* = new_call;
     }
 }
+
+bake_layout_build_str :: #string HERE
+BSP :: #import "BSP";
+Chop :: #import "ChopSUI"(IS_BAKING = true);
+#run
+{
+    layout_data: %;
+    context.bsp = Chop.init_bsp(layout_data.root);
+    %(*layout_data);
+}
+HERE
 
 struct_decl_template :: #string HERE
 % :: ()

@@ -29,6 +29,8 @@ Margins :: struct
 Node :: BSP.Node(Node_Data);
 Tree :: BSP.Tree(Node);
 
+#if IS_BAKING #add_context bsp: *Tree;
+
 Node_Data :: struct
 {
     ident:     string;
@@ -41,7 +43,6 @@ Node_Data :: struct
 UI_Data :: struct
 {
     root: Rect;
-    bsp:  *Tree;
 }
 
 #scope_file

@@ -6,52 +6,42 @@ Test_Layout_Data :: struct
     root = .{0, 0, 100, 100};
 }
 
-test_layout_simple_decl :: (using data: *Test_Layout_Data)
+test_layout_simple_decl :: (using data: Test_Layout_Data)
 {
-    bsp = Chop.init_bsp(root);
-
-    foo := Chop.chop(root, 50, .LEFT, bsp = bsp);
-    bar := Chop.chop(foo, 10, .TOP, bsp = bsp);
+    bsp := context.bsp;
+    foo := Chop.chop(root, 50, .LEFT);
+    bar := Chop.chop(foo, 10, .TOP);
 
     path: [..] *Chop.Node;
-    leaf := BSP.find_leaf_containing_point(bsp, x = 0, y = 0, Chop.node_contains_point);
+    leaf := BSP.find_leaf_containing_point(bsp, 0, 0, Chop.node_contains_point, *path);
 
     names := Array_Helpers.map(path, x => x.data.ident);
     print("Found path names: %\n", names);
 }
 
-test_layout_compound_decl :: (using data: *Test_Layout_Data)
+test_layout_compound_decl :: (using data: Test_Layout_Data)
 {
-    bsp = Chop.init_bsp(root);
-
-    rect: Chop.Rect = .{0, 0, 100, 100};
     Foo, FOO, Bar, b: Chop.Rect;
-    foo, bar := Chop.chop(root, 50, .LEFT, bsp = data.bsp);
-    Foo, Bar =  Chop.chop(foo, 10, .TOP, bsp = data.bsp);
-    FOO =, BAR := Chop.chop(bar, 10, .BOTTOM, bsp = data.bsp);
-    f:, b = Chop.chop(Foo, 10, .RIGHT, bsp = data.bsp);
+    foo, bar := Chop.chop(root, 50, .LEFT);
+    Foo, Bar =  Chop.chop(foo, 10, .TOP);
+    FOO =, BAR := Chop.chop(bar, 10, .BOTTOM);
+    f:, b = Chop.chop(Foo, 10, .RIGHT);
 }
 
-test_layout_assignments :: (using data: *Test_Layout_Data)
+test_layout_assignments :: (using data: Test_Layout_Data)
 {
-    bsp = Chop.init_bsp(root);
-
-    rect: Chop.Rect = .{0, 0, 100, 100};
     foo, bar: Chop.Rect;
-    foo = Chop.chop(root, 50, .LEFT, bsp = data.bsp);
-    bar = Chop.chop(foo, 10, .RIGHT, bsp = data.bsp);
+    foo = Chop.chop(root, 50, .LEFT);
+    bar = Chop.chop(foo, 10, .RIGHT);
 }
 
-test_layout_calls :: (using data: *Test_Layout_Data)
+test_layout_calls :: (using data: Test_Layout_Data)
 {
-    bsp = Chop.init_bsp(root);
-
-    rect: Chop.Rect = .{0, 0, 100, 100};
-    Chop.chop(root, 50, .LEFT, bsp = data.bsp);
+    Chop.chop(root, 50, .LEFT);
 }
 
 #scope_file
-Chop :: #import "ChopSUI";
+Chop :: #import "ChopSUI"(IS_BAKING = true);
 BSP  :: #import "BSP";
 Array_Helpers :: #import "Array_Helpers";
 #import "Basic";
